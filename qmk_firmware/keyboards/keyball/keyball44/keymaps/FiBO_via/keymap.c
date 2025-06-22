@@ -60,7 +60,7 @@ uint16_t click_timer;   // タイマー。状態に応じて時間で判定す�
 uint16_t to_reset_time = 800; // この秒数(千分の一秒)、CLICKABLE状態ならクリックレイヤーが無効になる。 For this number of seconds (milliseconds), the click layer is disabled if in CLICKABLE state.
 
 const int16_t to_clickable_movement = 0; // クリックレイヤーが有効になるしきい値
-const uint16_t click_layer = 6;          // マウス入力が可能になった際に有効になるレイヤー。Layers enabled when mouse input is enabled
+const uint16_t click_layer = 4;          // マウス入力が可能になった際に有効になるレイヤー。Layers enabled when mouse input is enabled
 
 int16_t mouse_record_threshold = 30; // ポインターの動きを一時的に記録するフレーム数。 Number of frames in which the pointer movement is temporarily recorded.
 int16_t mouse_move_count_ratio = 5;  // ポインターの動きを再生する際の移動フレームの係数。 The coefficient of the moving frame when replaying the pointer movement.
@@ -260,20 +260,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [4] = LAYOUT_universal(
     _______  , _______  , _______  , _______  , _______  , _______  ,                                        _______  , _______  , _______  , _______  , _______  , _______  ,
-    _______  , _______  , _______  , _______  , _______  , _______  ,                                        _______  , _______  , _______  , _______  , _______  , _______  ,
-    _______  , _______  , _______  , _______  , _______  , _______  ,                                        _______  , _______  , _______  , _______  , _______  , _______  ,
-                  _______  , _______  , _______  ,        _______  , _______  ,                   _______  , _______  , _______       , _______  , _______
-  ),
-
-  [5] = LAYOUT_universal(
-    _______  , _______  , _______  , _______  , _______  , _______  ,                                        _______  , _______  , _______  , _______  , _______  , _______  ,
-    _______  , _______  , _______  , _______  , _______  , _______  ,                                        _______  , _______  , _______  , _______  , _______  , _______  ,
-    _______  , _______  , _______  , _______  , _______  , _______  ,                                        _______  , _______  , _______  , _______  , _______  , _______  ,
-                  _______  , _______  , _______  ,        _______  , _______  ,                   _______  , _______  , _______       , _______  , _______
-  ),
-
-  [6] = LAYOUT_universal(
-    _______  , _______  , _______  , _______  , _______  , _______  ,                                        _______  , _______  , _______  , _______  , _______  , _______  ,
     _______  , _______  , _______  , _______  , _______  , _______  ,                                        _______  ,KC_MY_BTN1, _______  ,KC_MY_BTN2, _______  , _______  ,
     _______  , _______  , _______  , _______  , _______  , _______  ,                                        _______  , _______  , _______  , _______  , _______  , _______  ,
                   _______  , _______  , _______  ,        _______  , _______  ,                   _______  , _______  , _______       , _______  , _______
@@ -291,12 +277,14 @@ layer_state_t layer_state_set_user(layer_state_t state)
   uint8_t layer = biton32(state);
   switch (layer)
   {
-  case 6:
-    rgblight_sethsv(HSV_WHITE);
+  case 4:
+    // rgblight_sethsv(HSV_WHITE);
+    rgb_matrix_mode_noeeprom(RGB_MATRIX_SOLID_COLOR);
     break;
 
   default:
-    rgblight_sethsv(HSV_OFF);
+    // rgblight_sethsv(HSV_OFF);
+    rgb_matrix_reload_from_eeprom();
   }
 
   return state;
@@ -315,3 +303,26 @@ void oledkit_render_info_user(void)
   oled_write(get_u8_str(get_highest_layer(layer_state), ' '), false);
 }
 #endif
+
+// LED assignment for RGBmatrix
+#define LAYOUT_right_ball( \
+    L00, L01, L02, L03, L04, L05,    R05, R04, R03, R02, R01, R00, \
+    L10, L11, L12, L13, L14, L15,    R15, R14, R13, R12, R11, R10, \
+    L20, L21, L22, L23, L24, L25,    R25, R24, R23, R22, R21, R20, \
+         L31, L32, L33, L34, L35,    R35, R34,           R31       \
+    ) \
+    { \
+        {   L00,   L01,   L02,   L03,   L04,   L05 }, \
+        {   L10,   L11,   L12,   L13,   L14,   L15 }, \
+        {   L20,   L21,   L22,   L23,   L24,   L25 }, \
+        { KC_NO,   L31,   L32,   L33,   L34,   L35 }, \
+        {   R00,   R01,   R02,   R03,   R04,   R05 }, \
+        {   R10,   R11,   R12,   R13,   R14,   R15 }, \
+        {   R20,   R21,   R22,   R23,   R24,   R25 }, \
+        { KC_NO,   R31, KC_NO, KC_NO,   R34,   R35 }, \
+    }
+
+void keyboard_post_init_user(void) {
+  // Call the post init code.
+  rgb_matrix_reload_from_eeprom();
+}

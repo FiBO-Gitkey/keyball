@@ -1,7 +1,5 @@
-RGBLIGHT_ENABLE = no  // RGBmatrix有効化のためこちらを無効化
+RGBLIGHT_ENABLE = yes
 
 OLED_ENABLE = yes
 
 VIA_ENABLE = yes
-
-RGB_MATRIX_ENABLE = yes
